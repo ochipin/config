@@ -114,14 +114,14 @@ func Set(keynames string, value, i interface{}, mode string) error {
 				data = v2
 			} else {
 				// 存在するが、map[string]interface{}型ではない場合、エラーとする
-				return fmt.Errorf("\"%s\" already exists.", keynames)
+				return fmt.Errorf("\"%s\" already exists", keynames)
 			}
 		}
 	}
 
 	// 既にデータがある場合は、エラーとする
 	if _, ok := data[last]; ok {
-		return fmt.Errorf("\"%s\" already exists.", keynames)
+		return fmt.Errorf("\"%s\" already exists", keynames)
 	}
 	// 値をセット
 	data[last] = value

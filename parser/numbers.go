@@ -538,7 +538,7 @@ func (number *Number) parseNumberSize(b byte) (interface{}, error) {
 		}
 		// 単位を求める
 		var unit int64 = 1
-		var idx int = 2
+		var idx = 2
 		switch param[len(param)-idx:] {
 		case "KB":
 			unit = 1024

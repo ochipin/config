@@ -246,7 +246,7 @@ func (p *Parser) value(b byte) error {
 	return nil
 }
 
-// 整形した map[string]interface{} 型を返却する
+// Data は、整形した map[string]interface{} 型を返却する
 func (p *Parser) Data() interface{} {
 	return p.data
 }
@@ -288,12 +288,12 @@ func parse(buf []byte, mode string) (*Parser, error) {
 	return parser, nil
 }
 
-// 冒頭にモード指定がされていなくとも設定ファイルを解析する
+// Parse は、冒頭にモード指定がされていなくとも設定ファイルを解析する
 func Parse(buf []byte) (*Parser, error) {
 	return parse(buf, "_all_")
 }
 
-// 冒頭にモード指定がされていないと設定ファイルを解析しない
+// ParseModeAll は、冒頭にモード指定がされていないと設定ファイルを解析しない
 func ParseModeAll(buf []byte) (*Parser, error) {
 	return parse(buf, "")
 }
