@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"reflect"
 
 	"github.com/ochipin/config/parser"
 )
@@ -49,8 +50,25 @@ func mergedata(map1, map2 map[string]interface{}, keys ...string) {
 
 // パースしたデータを構造体に格納する
 func unmarshal(data map[string]interface{}, i interface{}) error {
-	buf, _ := json.Marshal(data)
+	// パースデータ格納用変数がnilの場合、エラーとする
+	if i == nil {
+		return fmt.Errorf("unmarshal error. missing arguments")
+	}
 
+	valueof := reflect.ValueOf(i)
+	// パースデータ格納用変数がポインタではない場合、エラーとする
+	if valueof.Kind() != reflect.Ptr || valueof.IsNil() || valueof.IsValid() == false {
+		return fmt.Errorf("unmarshal error. missing arguments")
+	}
+
+	// パースするデータを格納する領域が、 &map[string]... の場合
+	if valueof.Elem().Kind() == reflect.Map && valueof.Elem().Type().Key().Kind() == reflect.String {
+		// リフレクションを使用してデータを格納して復帰する
+		valueof.Elem().Set(reflect.ValueOf(data))
+		return nil
+	}
+
+	buf, _ := json.Marshal(data)
 	if err := json.Unmarshal(buf, i); err != nil {
 		if err, ok := err.(*json.UnmarshalTypeError); ok {
 			if err.Struct != "" || err.Field != "" {
@@ -63,7 +81,7 @@ func unmarshal(data map[string]interface{}, i interface{}) error {
 	return nil
 }
 
-// 指定した設定ファイルの内容をパースし、構造体、またはマップに格納する
+// Parse は、指定した設定ファイルの内容をパースし、構造体、またはマップに格納する
 func Parse(path, mode string, i interface{}) error {
 	// 指定されたパスから、設定ファイルを読み込む
 	buf, err := ioutil.ReadFile(path)
@@ -102,17 +120,17 @@ func Parse(path, mode string, i interface{}) error {
 	return fmt.Errorf("no configuration")
 }
 
-// 設定ファイル操作構造体
+// Config : 設定ファイル操作構造体
 type Config struct {
 	data map[string]interface{}
 }
 
-// 登録されている全データを取得する
+// DataAll : 登録されている全データを取得する
 func (c *Config) DataAll() map[string]interface{} {
 	return c.data
 }
 
-// 一部のモード名のみを抜き出す
+// Data : 一部のモード名のみを抜き出す
 func (c *Config) Data(mode string) map[string]interface{} {
 	if m, ok := c.data[mode]; ok {
 		return m.(map[string]interface{})
@@ -120,12 +138,12 @@ func (c *Config) Data(mode string) map[string]interface{} {
 	return nil
 }
 
-// 構造体、またはマップにデータを格納する
+// Unmarshal : 構造体、またはマップにデータを格納する
 func (c *Config) Unmarshal(data map[string]interface{}, i interface{}) error {
 	return unmarshal(data, i)
 }
 
-// データ1にデータ2をマージする
+// Merge : データ1にデータ2をマージする
 func (c *Config) Merge(data1, data2 map[string]interface{}) {
 	mergedata(data1, data2)
 }
