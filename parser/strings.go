@@ -66,10 +66,14 @@ func (str *String) Param() string {
 
 	if str.quote == '"' {
 		// " の場合、\\n, \\t, \\" を置き換える
-		param = strings.Replace(param, "\\n", "\n", -1)
-		param = strings.Replace(param, "\\t", "\t", -1)
-		param = strings.Replace(param, `\"`, "\"", -1)
-		param = strings.Replace(param, "\\\\", "\\", -1)
+		params := strings.Split(param, "\\\\")
+		for i, v := range params {
+			v = strings.Replace(v, "\\n", "\n", -1)
+			v = strings.Replace(v, "\\t", "\t", -1)
+			v = strings.Replace(v, `\"`, "\"", -1)
+			params[i] = v
+		}
+		param = strings.Join(params, "\\")
 	} else if str.quote == 39 {
 		// ' の場合、\' を置き換える
 		param = strings.Replace(param, `\'`, "'", -1)
