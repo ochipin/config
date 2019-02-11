@@ -341,14 +341,23 @@ func (storage Storage) IsMap(name string) error {
 // Slice : []interface{} 型でデータを取得する
 func (storage Storage) Slice(name string) (res []interface{}) {
 	if storage.IsSlice(name) == nil {
-		res = storage.Get(name).([]interface{})
+		v := reflect.ValueOf(storage.Get(name))
+		for i := 0; i < v.Len(); i++ {
+			res = append(res, v.Index(0).Interface())
+		}
 	}
 	return
 }
 
 // IsSlice : []interface{}型かチェックする
 func (storage Storage) IsSlice(name string) error {
-	return storage.hasItem(name, typeSlice)
+	if err := storage.hasItem(name, typeSlice); err != nil {
+		v := reflect.ValueOf(storage.Get(name))
+		if v.IsValid() == false || v.Kind() != reflect.Slice {
+			return err
+		}
+	}
+	return nil
 }
 
 // Time : 日付型としてデータを取得する
