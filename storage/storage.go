@@ -343,7 +343,7 @@ func (storage Storage) Slice(name string) (res []interface{}) {
 	if storage.IsSlice(name) == nil {
 		v := reflect.ValueOf(storage.Get(name))
 		for i := 0; i < v.Len(); i++ {
-			res = append(res, v.Index(0).Interface())
+			res = append(res, v.Index(i).Interface())
 		}
 	}
 	return
